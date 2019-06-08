@@ -1,0 +1,13 @@
+﻿  MeshViewer.cpp
+f:\此电脑\文档\tencent files\1340871578\filerecv\课件\计算机图形学\实验\meshviewer\meshviewer\meshviewer.cpp(131): error C2440: “初始化”: 无法从“const wchar_t [6]”转换为“char [200]”
+  f:\此电脑\文档\tencent files\1340871578\filerecv\课件\计算机图形学\实验\meshviewer\meshviewer\meshviewer.cpp(131): note: 字符串文本与数组类型不兼容
+f:\此电脑\文档\tencent files\1340871578\filerecv\课件\计算机图形学\实验\meshviewer\meshviewer\meshviewer.cpp(132): error C2440: “初始化”: 无法从“const wchar_t [18]”转换为“char []”
+  f:\此电脑\文档\tencent files\1340871578\filerecv\课件\计算机图形学\实验\meshviewer\meshviewer\meshviewer.cpp(132): note: 字符串文本与数组类型不兼容
+f:\此电脑\文档\tencent files\1340871578\filerecv\课件\计算机图形学\实验\meshviewer\meshviewer\meshviewer.cpp(136): error C2440: “=”: 无法从“char []”转换为“LPCWSTR”
+  f:\此电脑\文档\tencent files\1340871578\filerecv\课件\计算机图形学\实验\meshviewer\meshviewer\meshviewer.cpp(136): note: 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
+f:\此电脑\文档\tencent files\1340871578\filerecv\课件\计算机图形学\实验\meshviewer\meshviewer\meshviewer.cpp(140): error C2440: “=”: 无法从“char [200]”转换为“LPWSTR”
+  f:\此电脑\文档\tencent files\1340871578\filerecv\课件\计算机图形学\实验\meshviewer\meshviewer\meshviewer.cpp(140): note: 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
+f:\此电脑\文档\tencent files\1340871578\filerecv\课件\计算机图形学\实验\meshviewer\meshviewer\meshviewer.cpp(166): error C2664: “bool CObj::ReadObjFile(const char *)”: 无法将参数 1 从“LPWSTR”转换为“const char *”
+  f:\此电脑\文档\tencent files\1340871578\filerecv\课件\计算机图形学\实验\meshviewer\meshviewer\meshviewer.cpp(166): note: 与指向的类型无关；强制转换要求 reinterpret_cast、C 样式强制转换或函数样式强制转换
+f:\此电脑\文档\tencent files\1340871578\filerecv\课件\计算机图形学\实验\meshviewer\meshviewer\meshviewer.cpp(375): warning C4996: 'freopen': This function or variable may be unsafe. Consider using freopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(243): note: 参见“freopen”的声明
