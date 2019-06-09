@@ -97,8 +97,18 @@ void DrawCircle()
 
 void DrawModel(CObj &model)
 {//TODO: 绘制模型
-
-
+	glBegin(GL_POLYGON);
+	for (int i = 0; i < model.m_faces.size(); i++)
+	{
+		glNormal3f(model.m_faces[i].normal.fX, model.m_faces[i].normal.fY, model.m_faces[i].normal.fZ);
+		int p0 = model.m_faces[i].pts[0] - 1;
+		int p1 = model.m_faces[i].pts[1] - 1;
+		int p2 = model.m_faces[i].pts[2] - 1;
+		glVertex3f(model.m_pts[p0].normal.fX, model.m_pts[p0].normal.fY, model.m_pts[p0].normal.fZ);
+		glVertex3f(model.m_pts[p1].normal.fX, model.m_pts[p1].normal.fY, model.m_pts[p1].normal.fZ);
+		glVertex3f(model.m_pts[p2].normal.fX, model.m_pts[p2].normal.fY, model.m_pts[p2].normal.fZ);
+	}
+	glEnd();
 }
 
 void myInit()
@@ -156,6 +166,11 @@ void loadObjFile(void)
 	wglMakeCurrent(hDC, hRC); 
 
 	g_obj.ReadObjFile(fname.lpstrFile); //读入模型文件
+	//各种参数归零
+	g_x_offset = 0.0;
+	g_y_offset = 0.0;
+	g_z_offset = 0.0;
+	g_scale_size = 1;
 }
 
 void myGlutDisplay() //绘图函数， 操作系统在必要时刻就会对窗体进行重新绘制操作
@@ -169,6 +184,7 @@ void myGlutDisplay() //绘图函数， 操作系统在必要时刻就会对窗体进行重新绘制操作
 
 	if (g_draw_content == SHAPE_MODEL)
 	{//绘制模型
+		//glLoadIdentity();
 		DrawModel(g_obj);
 	}
 	else if (g_draw_content == SHAPE_TRIANGLE)  //画三角形
@@ -238,11 +254,11 @@ void myGlutMouse(int button, int state, int x, int y)
 			g_xform_mode = TRANSFORM_ROTATE;
 		}
 		else if (button == GLUT_MIDDLE_BUTTON)  
-		{//按下鼠标的右键表示对模型进行平移操作
+		{//按下鼠标的滚轮表示对模型进行平移操作
 			g_xform_mode = TRANSFORM_TRANSLATE; 
 		}
 		else if (button ==  GLUT_RIGHT_BUTTON) 
-		{//按下鼠标的滑轮表示按下鼠标的右键表示对模型进行缩放操作
+		{//按下鼠标的右键表示对模型进行缩放操作
 			g_xform_mode = TRANSFORM_SCALE; 
 		}
 	}
@@ -254,17 +270,42 @@ void myGlutMouse(int button, int state, int x, int y)
 
 void myGlutMotion(int x, int y) //处理当鼠标键摁下时,鼠标拖动的事件
 {
+	const int shift_step = 10;
+	int shift_x = x - g_press_x, shift_y = y - g_press_y;
+	g_press_x = x;
+	g_press_y = y;
 	if (g_xform_mode == TRANSFORM_ROTATE) //旋转
 	{//TODO:添加鼠标移动控制模型旋转参数的代码
 
+		glRotatef(9.f, shift_x, shift_y, 0.0f);	// 在XYZ轴上旋转模型
 	}
 	else if(g_xform_mode == TRANSFORM_SCALE) //缩放
 	{//TODO:添加鼠标移动控制模型缩放参数的代码
-
+		if (shift_x > shift_step)
+		{
+			g_scale_size = 1.2;
+		}
+		else if(shift_x < -shift_step)
+		{
+			g_scale_size = 0.83;
+		}
+		glScalef(g_scale_size, g_scale_size, g_scale_size);
 	}
 	else if(g_xform_mode == TRANSFORM_TRANSLATE) //平移
 	{//TODO:添加鼠标移动控制模型平移参数的代码
-
+		if (shift_x > shift_step)
+			g_x_offset = 0.2;
+		else if (shift_x < -shift_step)
+			g_x_offset = -0.2;
+		else
+			g_x_offset = 0;
+		if (shift_y > shift_step)
+			g_y_offset = -0.2;
+		else if (shift_y < -shift_step)
+			g_y_offset = 0.2;
+		else
+			g_y_offset = 0;
+		glTranslatef(g_x_offset, g_y_offset, 0.0f);
 	}
 
 	// force the redraw function

@@ -59,8 +59,42 @@ bool CObj::ReadObjFile(const char* pcszFileName)
 	m_faces.clear();
 
 	//TODO：将模型文件中的点和面数据分别存入m_pts和m_faces中
+	char buff[255];
+	char temp;
+	while (!feof(fpFile))
+	{
+		fscanf(fpFile, "%c", &temp);
+		if (temp == 'v')
+		{
+			Vector3 tempPoints;
+			fscanf(fpFile, "%lf", &tempPoints.fX);
+			fscanf(fpFile, "%lf", &tempPoints.fY);
+			fscanf(fpFile, "%lf", &tempPoints.fZ);
+			Point point;
+			point.pos = tempPoints;
+			point.normal = tempPoints;
+			m_pts.push_back(point);
+			fscanf(fpFile, "%c", &temp);
+		}
+		else if (temp == 'f')
+		{ 
+			Face face;
+			fscanf(fpFile, "%d", &face.pts[0]);
+			fscanf(fpFile, "%d", &face.pts[1]);
+			fscanf(fpFile, "%d", &face.pts[2]);
+			m_faces.push_back(face);
+			fscanf(fpFile, "%c", &temp);
+		}
+		else if (temp == '\n') //跳过空行
+		{
 
-
+		}
+		else
+		{
+			fgets(buff, 255, fpFile);
+		}
+	}
+	
 	fclose(fpFile);
 
 	UnifyModel(); //将模型归一化
@@ -78,5 +112,9 @@ void CObj::UnifyModel()
 
 void CObj::ComputeFaceNormal(Face& f)
 {//TODO:计算面f的法向量，并保存
-
+	Vector3 x1 = m_pts[f.pts[1]-1].pos - m_pts[f.pts[0]-1].pos;
+	Vector3 x2 = m_pts[f.pts[2]-1].pos - m_pts[f.pts[0]-1].pos;
+	Vector3 temp = Cross(x1, x2);
+	temp.Normalize();
+	f.normal = temp;
 }
