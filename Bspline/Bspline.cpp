@@ -53,13 +53,13 @@ Point2 vec[NUM_POINTS];
 bool mouseLeftDown = false;
 
 
-/*绘制B样条曲线*/
+/*绘制3次B样条曲线*/
 void DrawBspline(int n)
 {
 	float f1, f2, f3, f4;
 	float deltaT = 1.0 / n;
 	float T;
-
+	
 	vec[0].SetPoint2(2, 4);
 	vec[1].SetPoint2(1, 3);
 	vec[2].SetPoint2(2, 2);
@@ -106,7 +106,7 @@ void DrawBspline(int n)
 	glEnd();
 }
 
-
+//TODO 通过动态规划计算N值 
 void DrawBspline(Bspline &b_obj)
 {
 	glLineWidth(2.f);
@@ -131,40 +131,67 @@ void DrawBspline(Bspline &b_obj)
 
 	glBegin(GL_LINE_STRIP);
 //	glNormal3f(0.0f, 0.0f, 1.0f);  //指定面法向
-	for (int k = 0; k < b_obj.seg; k++)
+	float delta = 1.f / b_obj.u.size();
+	int t = b_obj.degree;         // 控制矢量区间的左边界，与样条次数相关
+	for (int k = 0; k < b_obj.seg; k++)       //按段数绘制
 	{
-		for (int j = 0; j < b_obj.sepU.size(); j++) {
+		for (int j = b_obj.k * t+1; j < b_obj.k * (t+1); j++) {  //每段对应的控制点范围
 			Vector2 points(0, 0);
-			for (int i = k; i < k+b_obj.n; i++)
+			for (int i = k; i < k+b_obj.n; i++)       //根据N函数值来计算个点
 			{
-				//points += (b_obj.cp[i] * b_obj.calcN(i, b_obj.degree, b_obj.u[j], b_obj.u));
-				points += (b_obj.cp[i] * b_obj.N[i][b_obj.degree][j]);
+				points += (b_obj.cp[i] * b_obj.N[i-k][b_obj.degree][j]);
 			}
-			points = points * b_obj.degree;
+			glVertex2f(points.fX, points.fY);
+		}
+	}
+	glEnd();
+}
+
+//TODO 通过递归计算N值 
+void DrawBspline1(Bspline &b_obj)
+{
+	glLineWidth(2.f);
+	glBegin(GL_LINE_STRIP);
+	//glNormal3f(0.0f, 0.0f, 1.0f);  //指定面法向
+	for (int i = 0; i < b_obj.cp.size(); i++)
+	{
+		//glVertex3f(b_obj.cp[i].fX, b_obj.cp[i].fY, 0.f);
+		glVertex2f(b_obj.cp[i].fX, b_obj.cp[i].fY);
+	}
+	glEnd();
+
+	glPointSize(10.0f);
+	glBegin(GL_POINTS);
+	//glNormal3f(0.0f, 0.0f, 1.0f);  //指定面法向
+	for (int i = 0; i < b_obj.cp.size(); i++)
+	{
+		//glVertex3f(b_obj.cp[i].fX, b_obj.cp[i].fY, 0.f);
+		glVertex2f(b_obj.cp[i].fX, b_obj.cp[i].fY);
+	}
+	glEnd();
+
+	glBegin(GL_LINE_STRIP);
+	float delta = 1.f / b_obj.u.size();
+	int t = b_obj.degree;         // 控制矢量区间的左边界，与样条次数相关
+	for (int k = 0; k < b_obj.seg; k++)       //按段数绘制
+	{
+		for (int j = b_obj.k * t+1; j < b_obj.k * (t + 1); j++) {  //每段对应的控制点范围
+			Vector2 points(0, 0);
+			for (int i = k; i < k + b_obj.n; i++)       //根据N函数值来计算个点
+			{
+				//P0*N0,3+...P3*N3,3  第一段
+				//...
+				//P2*N0,3+...P5*N3,3  第三段
+				float nVa = b_obj.calcN(i - k, b_obj.degree, b_obj.sepU[j], b_obj.u);
+				points += (b_obj.cp[i] * nVa);
+			}
+			points = points;
 			//glVertex3f(points.fX, points.fY, 0.f);
 			glVertex2f(points.fX, points.fY);
 		}
 	}
 	glEnd();
 
-	glPointSize(4.0f);
-	glBegin(GL_POINTS);
-	//	glNormal3f(0.0f, 0.0f, 1.0f);  //指定面法向
-	for (int k = 0; k < b_obj.seg; k++)
-	{
-		for (int j = 0; j < b_obj.sepU.size(); j++) {
-			Vector2 points(0, 0);
-			for (int i = k; i < k + b_obj.n; i++)
-			{
-				//points += (b_obj.cp[i] * b_obj.calcN(i, b_obj.degree, b_obj.u[j], b_obj.u));
-				points += (b_obj.cp[i] * b_obj.N[i][b_obj.degree][j]);
-			}
-			points = points * b_obj.degree;
-			//glVertex3f(points.fX, points.fY, 0.f);
-			glVertex2f(points.fX, points.fY);
-		}
-	}
-	glEnd();
 }
 
 void DrawTriangle()
@@ -266,8 +293,7 @@ void myGlutDisplay() //绘图函数， 操作系统在必要时刻就会对窗体进行重新绘制操作
 	}
 	else if (g_draw_content == SHAPE_CIRCLE) // 画圆
 	{
-		glLoadIdentity();
-		glTranslatef(0.0f, 0.0f, -6.0f);  
+		DrawBspline1(b_obj);
 	}
 	else if (g_draw_content == SHAPE_CYLINDER)  
 	{//TODO: 添加画圆柱的代码

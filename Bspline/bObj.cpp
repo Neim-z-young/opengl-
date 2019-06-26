@@ -63,16 +63,18 @@ bool Bspline::readProfile(const char * pcszFileName)
 
 	seg = cp.size() - n + 1;
 
-	std::vector<double> sepU(u.size() * 5, 0.f);
+	//控制点之间划分k份
+	std::vector<double> sepU(u.size() * k, 0.f);
 	double delta = 0.1;
-	delta = (u[u.size() - 1] - u[0]) / sepU.size();
+	delta = (u[u.size() - 1] - u[0]+1) / sepU.size();
 	for (int i = 0; i < sepU.size(); i++)
 	{
 		sepU[i] = u[0] + i * delta;
 	}
 	this->sepU = sepU;
 
-	std::vector<std::vector<std::vector<double>>> t(cp.size(), std::vector<std::vector<double>>(degree+1, std::vector<double>(sepU.size(), 0.f)));
+	//维度：（控制点数，阶数+1，控制矢量分段）
+	std::vector<std::vector<std::vector<double>>> t(u.size()-1, std::vector<std::vector<double>>(degree+1, std::vector<double>(sepU.size(), 0.f)));
 	N = t;
 	fclose(fpFile);
 
@@ -106,33 +108,32 @@ double Bspline::calcN(int i, int k, double t, const std::vector<double>& u)
 		{
 			length2 = 1.f;
 		}
-		return calcN(i, k - 1, t, u)*(t - u[i]) / length1 +
+		float baseN = calcN(i, k - 1, t, u)*(t - u[i]) / length1 +
 			calcN(i + 1, k - 1, t, u)*(u[i + k + 1] - t) / length2;
+		return baseN;
 	}
 }
 
 bool Bspline::dpCalcN()
 {
+	//初始化子问题
 	for (int i = 0; i < N.size(); i++)
 	{
 		for (int t = 0; t < N[i][0].size(); t++)
 		{
-			if (sepU[t] >= u[i] && sepU[t] < u[i + 1])
+			if (sepU[t] >= u[i] && sepU[t] <= u[i + 1])
 			{
 				N[i][0][t] = 1.f;
 			}
 		}
 	}
-	for (int i = 0; i < N.size(); i++)
+	if (N.size() == 0) return false;
+	//调用递推公式
+	for (int k = 1; k < N[0].size(); k++)  //根据递推公式知：阶次所在的循环在外层
 	{
-		if (i + 1 >= N.size())
+		for (int i = 0; i < N.size(); i++)
 		{
-			break;
-		}
-		for (int k = 1; k < N[i].size(); k++)
-		{
-			if (i + k + 1>= u.size())
-				break;
+			if (i + k > u.size()-2) break;   //计算
 			for (int t = 0; t < N[i][k].size(); t++)
 			{
 				double length1, length2;
@@ -147,9 +148,10 @@ bool Bspline::dpCalcN()
 				{
 					length2 = 1.f;
 				}
-				N[i][k][t] = (sepU[t] - u[i]) / length1 * N[i][k - 1][t] + (u[i + k + 1] - sepU[t]) / length2 * N[i + 1][k - 1][t];
+				N[i][k][t] = (sepU[t] - u[i]) / length1 * N[i][k - 1][t] + 
+					(u[i + k + 1] - sepU[t]) / length2 * N[i + 1][k - 1][t];
 			}
 		}
 	}
-	return false;
+	return true;
 }

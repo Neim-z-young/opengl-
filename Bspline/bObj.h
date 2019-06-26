@@ -31,27 +31,21 @@ struct Vector2
 };
 
 
-//3
-//4
-//0 0.5 1 2 3 3.5 4.5 5
-//0 0
-//10 50
-//30 10
-//100 100
 class Bspline
 {
 public:
-	int degree;                //阶数
-	int n;                     //控制点数量
-	std::vector<double> u;    //节点矢量
+	int degree;                //样条次数 = 阶数 - 1
+	int n;                     //控制点数量=阶数
+	std::vector<double> u;    //节点矢量 个数 = n+degree+1
 	std::vector<Vector2> cp;   //控制点
-	std::vector<std::vector<std::vector<double>>> N;
-	int seg; //曲线段数
-	std::vector<double> sepU;
+	std::vector<std::vector<std::vector<double>>> N;   //动态规划时存放基函数序列的数组
+	int seg;		//曲线段数
+	int k = 20;		//控制点k等分
+	std::vector<double> sepU;  //需绘制的点
 public:
 	bool readProfile(const char* pcszFileName); //读入样条曲线配置文件
-	double calcN(int i, int k, double t, const std::vector<double> &u); //递归计算N值 
-	bool dpCalcN();
+	double calcN(int i, int k, double t, const std::vector<double> &u); //递归计算基函数值
+	bool dpCalcN();          //动态规划计算基函数序列
 };
 
 #endif
