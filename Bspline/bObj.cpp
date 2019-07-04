@@ -37,7 +37,7 @@ bool Bspline::readProfile(const char * pcszFileName)
 	cp.clear();
 	N.clear();
 
-	//TODO：将配置文件中的点数据进行加载
+	//TODO：将配置文件中的数据进行加载  OK
 	char buff[255];
 	int temp;
 	double tempd, tempx, tempy;

@@ -95,8 +95,42 @@ void DrawCircle()
 	glEnd();
 }
 
+GLvoid DrawCircleArea(float cx, float cy, float cz, float r, int num_segments)
+{//绘制圆
+	glBegin(GL_POLYGON);
+	glNormal3f(cx, cy, 1.0f);
+	for (int i = 0; i < num_segments; ++i)
+		glVertex3f(r*cos(2 * Pi / num_segments * i), r*sin(2 * Pi / num_segments * i), cz);
+	glEnd();
+}
+
+void DrawCylinder()
+{//绘制圆柱
+	GLUquadricObj *g_text;
+	g_text = gluNewQuadric();
+	float topRadius = 0.4, baseRadius = 0.4, height = 1.5, segment = 128, stacks = 4;
+	gluCylinder(g_text, baseRadius, topRadius, height, segment, stacks);
+	//top
+	DrawCircleArea(0.f, 0.f, height, topRadius, segment);
+	//base
+	DrawCircleArea(0.f, 0.f, 0.f, baseRadius, segment);
+}
+
+void DrawCone()
+{//绘制圆锥
+	GLUquadricObj *g_text;
+	g_text = gluNewQuadric();
+	float topRadius = 0.4f, baseRadius = 0.f, height = 1.5, segment = 128, stacks = 4;
+	gluCylinder(g_text, baseRadius, topRadius, height, segment, stacks);
+	//top
+	DrawCircleArea(0.f, 0.f, height, topRadius, segment);
+	//base
+	DrawCircleArea(0.f, 0.f, 0.f, baseRadius, segment);
+}
+
+
 void DrawModel(CObj &model)
-{//TODO: 绘制模型
+{//TODO: 绘制模型  OK
 	glBegin(GL_POLYGON);
 	for (int i = 0; i < model.m_faces.size(); i++)
 	{
@@ -208,12 +242,20 @@ void myGlutDisplay() //绘图函数， 操作系统在必要时刻就会对窗体进行重新绘制操作
 		DrawCircle();
 	}
 	else if (g_draw_content == SHAPE_CYLINDER)  
-	{//TODO: 添加画圆柱的代码
-
+	{//TODO: 添加画圆柱的代码   OK
+		glLoadIdentity();
+		glTranslatef(0.0f, 0.0f, -6.0f);
+		glRotatef(g_rquad, g_rquad, g_rquad, 1.0f);	// 在XYZ轴上旋转圆柱
+		DrawCylinder();
+		g_rquad += 0.2f;// 增加旋转变量
 	}
 	else if (g_draw_content == SHAPE_CONE) 
-	{//TODO：添加画圆锥的代码
-
+	{//TODO：添加画圆锥的代码   OK
+		glLoadIdentity();
+		glTranslatef(0.0f, 0.0f, -6.0f);
+		glRotatef(g_rquad, g_rquad, g_rquad, 1.0f);	// 在XYZ轴上旋转圆锥
+		DrawCone();
+		g_rquad += 0.2f;// 增加旋转变量
 	}
 	glPopMatrix();
 	glutSwapBuffers(); //双缓冲
@@ -275,12 +317,12 @@ void myGlutMotion(int x, int y) //处理当鼠标键摁下时,鼠标拖动的事件
 	g_press_x = x;
 	g_press_y = y;
 	if (g_xform_mode == TRANSFORM_ROTATE) //旋转
-	{//TODO:添加鼠标移动控制模型旋转参数的代码
+	{//TODO:添加鼠标移动控制模型旋转参数的代码   左键旋转OK
 
 		glRotatef(9.f, shift_x, shift_y, 0.0f);	// 在XYZ轴上旋转模型
 	}
 	else if(g_xform_mode == TRANSFORM_SCALE) //缩放
-	{//TODO:添加鼠标移动控制模型缩放参数的代码
+	{//TODO:添加鼠标移动控制模型缩放参数的代码   右键缩放OK
 		if (shift_x > shift_step)
 		{
 			g_scale_size = 1.2;
@@ -292,7 +334,7 @@ void myGlutMotion(int x, int y) //处理当鼠标键摁下时,鼠标拖动的事件
 		glScalef(g_scale_size, g_scale_size, g_scale_size);
 	}
 	else if(g_xform_mode == TRANSFORM_TRANSLATE) //平移
-	{//TODO:添加鼠标移动控制模型平移参数的代码
+	{//TODO:添加鼠标移动控制模型平移参数的代码   中键平移OK
 		if (shift_x > shift_step)
 			g_x_offset = 0.2;
 		else if (shift_x < -shift_step)
