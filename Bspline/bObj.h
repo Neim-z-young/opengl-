@@ -43,9 +43,12 @@ public:
 	int k = 20;		//控制点k等分
 	std::vector<double> sepU;  //需绘制的点
 public:
-	bool readProfile(const char* pcszFileName); //读入样条曲线配置文件
-	double calcN(int i, int k, double t, const std::vector<double> &u); //递归计算基函数值
-	bool dpCalcN();          //动态规划计算基函数序列
+	//读入样条曲线配置文件
+	bool readProfile(const char* pcszFileName);
+	// 递归计算基函数值
+	double calcN(int i, int k, double t, const std::vector<double> &u);
+	//动态规划计算基函数序列
+	bool dpCalcN();
 };
 
 #endif

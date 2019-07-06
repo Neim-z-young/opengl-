@@ -58,7 +58,7 @@ bool CObj::ReadObjFile(const char* pcszFileName)
 	m_pts.clear(); 
 	m_faces.clear();
 
-	//TODO：将模型文件中的点和面数据分别存入m_pts和m_faces中
+	//TODO：将模型文件中的点和面数据分别存入m_pts和m_faces中  OK
 	char buff[255];
 	char temp;
 	while (!feof(fpFile))
@@ -82,6 +82,8 @@ bool CObj::ReadObjFile(const char* pcszFileName)
 			fscanf(fpFile, "%d", &face.pts[0]);
 			fscanf(fpFile, "%d", &face.pts[1]);
 			fscanf(fpFile, "%d", &face.pts[2]);
+			ComputeFaceNormal(face);
+			calFocus(face);
 			m_faces.push_back(face);
 			fscanf(fpFile, "%c", &temp);
 		}
@@ -107,14 +109,41 @@ void CObj::UnifyModel()
 //原理：找出模型的边界最大和最小值，进而找出模型的中心
 //以模型的中心点为基准对模型顶点进行缩放
 //TODO:添加模型归一化代码
-
+	Vector3 center(0.f, 0.f, 0.f);
+	for (int i = 0; i < m_faces.size(); i++)
+	{
+		center = center + m_faces[i].focus;
+	}
+	center = center / m_faces.size();    //找到模型重心
+	for (int i = 0; i < m_pts.size(); i++)
+	{
+		m_pts[i].pos = m_pts[i].pos - center; //将模型重心平移到原点
+	}
+	double maxlen = 0.f, minlen = 1e20;
+	for (int i = 0; i < m_pts.size(); i++)
+	{
+		double len = m_pts[i].pos.Length();
+		if (maxlen < len) maxlen = len;
+		if (minlen > len) minlen = len;
+	}
+	double scale = (maxlen + minlen) / 2;
+	for (int i = 0; i < m_pts.size(); i++)
+	{
+		m_pts[i].normal = m_pts[i].pos/scale;  //归一化
+	}
+	
 }
 
 void CObj::ComputeFaceNormal(Face& f)
-{//TODO:计算面f的法向量，并保存
+{//TODO:计算面f的法向量，并保存  OK
 	Vector3 x1 = m_pts[f.pts[1]-1].pos - m_pts[f.pts[0]-1].pos;
 	Vector3 x2 = m_pts[f.pts[2]-1].pos - m_pts[f.pts[0]-1].pos;
 	Vector3 temp = Cross(x1, x2);
 	temp.Normalize();
 	f.normal = temp;
+}
+
+void CObj::calFocus(Face& f)
+{
+	f.focus = (m_pts[f.pts[0] - 1].pos + m_pts[f.pts[1] - 1].pos + m_pts[f.pts[2] - 1].pos) / 3;
 }

@@ -131,7 +131,7 @@ void DrawCone()
 
 void DrawModel(CObj &model)
 {//TODO: 绘制模型  OK
-	glBegin(GL_POLYGON);
+	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < model.m_faces.size(); i++)
 	{
 		glNormal3f(model.m_faces[i].normal.fX, model.m_faces[i].normal.fY, model.m_faces[i].normal.fZ);
@@ -143,6 +143,7 @@ void DrawModel(CObj &model)
 		glVertex3f(model.m_pts[p2].normal.fX, model.m_pts[p2].normal.fY, model.m_pts[p2].normal.fZ);
 	}
 	glEnd();
+
 }
 
 void myInit()
@@ -319,7 +320,7 @@ void myGlutMotion(int x, int y) //处理当鼠标键摁下时,鼠标拖动的事件
 	if (g_xform_mode == TRANSFORM_ROTATE) //旋转
 	{//TODO:添加鼠标移动控制模型旋转参数的代码   左键旋转OK
 
-		glRotatef(9.f, shift_x, shift_y, 0.0f);	// 在XYZ轴上旋转模型
+		glRotatef(9.f, shift_y, shift_x, 0.0f);	// 在XYZ轴上旋转模型
 	}
 	else if(g_xform_mode == TRANSFORM_SCALE) //缩放
 	{//TODO:添加鼠标移动控制模型缩放参数的代码   右键缩放OK

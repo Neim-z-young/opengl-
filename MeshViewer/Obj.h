@@ -40,7 +40,8 @@ struct Point
 struct Face
 {
 	int pts[3];
-	Vector3 normal;
+	Vector3 focus;  //三角网格重心
+	Vector3 normal; //法向量
 };
 
 class CObj
@@ -51,13 +52,14 @@ public:
 
 	std::vector<Point> m_pts; //顶点
 	std::vector<Face> m_faces;//面
-
 public:
 	bool ReadObjFile(const char* pcszFileName);//读入模型文件
 
 private:
 	void UnifyModel();//单位化模型
 	void ComputeFaceNormal(Face& f);//计算面的法线
+
+	void CObj::calFocus(Face& f);
 };
 
 #endif

@@ -140,7 +140,7 @@ bool Bspline::dpCalcN()
 				length1 = u[i + k] - u[i];
 				length2 = u[i + k + 1] - u[i + 1];
 				// ºŸ…Ë0/0=0
-				if (length1 <= EPSILON && length1 >= -EPSILON)
+				if (length1 <= EPSILON && length1 >= -EPSILON)  //≈–∂œ «∑ÒŒ™0
 				{
 					length1 = 1.f;
 				}
